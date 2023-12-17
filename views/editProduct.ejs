@@ -1,0 +1,132 @@
+<!-- views/editProduct.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product</title>
+    <!-- Include your CSS stylesheets or libraries here if needed -->
+    <style>
+        /* Add your styling here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Product</h1>
+
+        <!-- Form for editing product details -->
+        <form id="editProductForm">
+            <input type="hidden" id="editedProductId" name="editedProductId" value="<%= product.id %>">
+
+            <label for="editedProductName">Name:</label>
+            <input type="text" id="editedProductName" name="editedProductName" value="<%= product.name %>" required>
+    
+            <label for="editedProductType">Type:</label>
+            <input type="text" id="editedProductType" name="editedProductType" value="<%= product.type %>" required>
+    
+            <label for="editedProductDateCreate">Date Created:</label>
+            <input type="text" id="editedProductDateCreate" name="editedProductDateCreate" value="<%= product.dateCreate %>" required>
+    
+            <label for="editedProductPriceSale">Price:</label>
+            <input type="text" id="editedProductPriceSale" name="editedProductPriceSale" value="<%= product.priceSale %>" required>
+    
+            <label for="editedProductPriceImport">Price Import:</label>
+            <input type="text" id="editedProductPriceImport" name="editedProductPriceImport" value="<%= product.priceImport %>" required>
+    
+            <label for="editedProductDescription">Description:</label>
+            <textarea id="editedProductDescription" name="editedProductDescription" required><%= product.description %></textarea>
+            
+            <!-- Add more input fields for other properties -->
+
+            <button type="submit">Save</button>
+            <button type="button" onclick="cancelEdit()">Cancel</button>
+        </form>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('editedProductId');
+
+        // Function to cancel the edit and go back
+        function cancelEdit() {
+            // Redirect back to the product list page
+            window.location.href = '/manageCategories';
+        }
+
+        // Add an event listener for the form submission
+        document.getElementById('editProductForm').addEventListener('submit', async function(event) {
+            console.log('editedProductName:', document.getElementById('editedProductName').value);
+console.log('editedProductType:', document.getElementById('editedProductType').value);
+console.log('editedProductDateCreate:', document.getElementById('editedProductDateCreate').value);
+// Add similar logs for other properties
+
+            // Retrieve the edited product data from the form
+            const editedProductData = {
+                name: document.getElementById('editedProductName').value,
+                type: document.getElementById('editedProductType').value,
+                dateCreate: document.getElementById('editedProductDateCreate').value,
+                priceSale: document.getElementById('editedProductPriceSale').value,
+                priceImport: document.getElementById('editedProductPriceImport').value,
+                description: document.getElementById('editedProductDescription').value,
+                // Add more properties as needed
+            };
+
+            try {
+                // Make an asynchronous request to update the product
+                const response = await fetch(`/updateProduct/${productId}`, {
+    method: 'PUT',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(editedProductData),
+});
+
+                if (response.ok) {
+                    // Handle the successful update (e.g., redirect or display a success message)
+                    window.location.href = '/manageCategories';
+                } else {
+                    // Handle the case where the update is not successful
+                    console.error('Failed to update product:', response.statusText);
+                    // You can display an error message to the user if needed
+                }
+            } catch (error) {
+                console.error('Error updating product:', error);
+                // Handle other errors (e.g., network issues)
+            }
+        });
+    </script>
+
+    <!-- Include your JavaScript files or libraries here if needed -->
+</body>
+</html>

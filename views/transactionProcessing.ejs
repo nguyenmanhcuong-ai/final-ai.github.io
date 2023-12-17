@@ -1,0 +1,379 @@
+<!-- views/transactionProcessing.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaction Processing</title>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    .container {
+      width: 60%;
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      box-sizing: border-box;
+      margin-top: 50px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    #addProductContainer {
+      position: sticky;
+      top: 0;
+      background-color: #fff;
+      z-index: 1;
+      margin-bottom: 20px;
+      padding-bottom: 20px; /* Add some padding at the bottom */
+    }
+
+    #addProductForm {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    #productListContainer {
+      max-height: 50vh; /* Set the maximum height relative to the viewport height */
+      overflow-y: auto; /* Enable vertical scroll if content exceeds the height */
+      margin-top: 20px; /* Add margin to create space */
+    }
+
+    label {
+      flex: 1 1 100%;
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    input, button {
+      flex: 1 1 calc(100% - 12px);
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    #orderSummaryContainer {
+      margin-top: 20px;
+    }
+    .modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Transaction Processing</h1>
+
+    <!-- Form to add products -->
+    <div id="addProductContainer">
+      <h2>Add Product</h2>
+      <form id="addProductForm">
+        <label for="productName">Product Name:</label>
+        <input type="text" id="productName" name="productName" autocomplete="off" required>
+
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" name="quantity" required>
+
+        <label for="unitPrice">Unit Price:</label>
+        <input type="number" id="unitPrice" name="unitPrice" required>
+
+        <button type="button" onclick="addProduct()">Add Product</button>
+      </form>
+    </div>
+
+    <!-- Product List -->
+    <div id="productListContainer">
+      <h2>Product List</h2>
+      <table id="productList">
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Total Price</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="productTableBody">
+          <!-- Product items will be added here dynamically -->
+        </tbody>
+      </table>
+      <p>Total Quantity: <span id="totalQuantity">0</span></p>
+      <p>Total Price: $<span id="totalPrice">0.00</span></p>
+    </div>
+
+    <!-- Order Summary Form -->
+    <div id="orderSummaryContainer" style="display: none;">
+      <h2>Order Summary</h2>
+      <p id="totalAmount">Total Amount: $<!-- Add logic to get the total order amount --></p>
+      <form id="customerInfoForm">
+        <label for="phoneNumber">Phone Number:</label>
+        <input type="tel" id="phoneNumber" name="phoneNumber" required>
+
+        <label for="customerName">Customer Name:</label>
+        <input type="text" id="customerName" name="customerName" required>
+
+        <label for="customerAddress">Customer Address:</label>
+        <input type="text" id="customerAddress" name="customerAddress" required>
+
+        <label for="customerPayment">Customer Payment:</label>
+        <input type="number" id="customerPayment" name="customerPayment" oninput="updateTotalAmount()" required>
+
+        <p id="changeAmount">Change Amount: $0.00</p>
+
+        <button type="button" onclick="confirmPayment()">Confirm Payment</button>
+      </form>
+    </div>
+  </div>
+<!-- Add this at the end of your HTML body -->
+<div id="invoiceModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeInvoiceModal()">&times;</span>
+    <div class="modal-body"></div>
+  </div>
+</div>
+
+  <script>
+    const products = [];
+    const productNameInput = document.getElementById('productName');
+    const orderSummaryContainer = document.getElementById('orderSummaryContainer');
+
+    // Show Order Summary when the page is loaded
+    orderSummaryContainer.style.display = 'block';
+
+    function addProduct() {
+      const productName = productNameInput.value;
+      const quantity = parseInt(document.getElementById('quantity').value, 10);
+      const unitPrice = parseFloat(document.getElementById('unitPrice').value);
+
+      if (isNaN(quantity) || isNaN(unitPrice) || quantity <= 0 || unitPrice <= 0) {
+        alert('Please enter valid quantity and unit price.');
+        return;
+      }
+
+      const totalPrice = quantity * unitPrice;
+
+      const product = {
+        productName,
+        quantity,
+        unitPrice,
+        totalPrice
+      };
+
+      products.push(product);
+
+      productNameInput.value = '';
+      document.getElementById('quantity').value = '';
+      document.getElementById('unitPrice').value = '';
+
+      updateProductList();
+    }
+
+    function updateProductList() {
+      const productTableBody = document.getElementById('productTableBody');
+      const totalQuantityElement = document.getElementById('totalQuantity');
+      const totalPriceElement = document.getElementById('totalPrice');
+
+      productTableBody.innerHTML = '';
+
+      products.forEach((product, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${product.productName}</td>
+            <td>${product.quantity}</td>
+            <td>${product.unitPrice}</td>
+            <td>${product.totalPrice}</td>
+            <td><button onclick="deleteProduct(${index})">Delete</button></td>
+        `;
+        productTableBody.appendChild(row);
+      });
+
+      const totalQuantity = products.reduce((total, product) => total + product.quantity, 0);
+      const totalPrice = products.reduce((total, product) => total + product.totalPrice, 0);
+
+      totalQuantityElement.textContent = totalQuantity;
+      totalPriceElement.textContent = totalPrice.toFixed(2);
+
+      // Show Order Summary when there are products
+      if (products.length > 0) {
+        orderSummaryContainer.style.display = 'block';
+      }
+    }
+
+    function updateTotalAmount() {
+      const totalAmountElement = document.getElementById('totalAmount');
+      const totalAmount = products.reduce((total, product) => total + product.totalPrice, 0);
+
+      totalAmountElement.textContent = `Total Amount: $${totalAmount.toFixed(2)}`;
+
+      const customerPaymentInput = document.getElementById('customerPayment');
+      const changeAmountElement = document.getElementById('changeAmount');
+      const customerPayment = parseFloat(customerPaymentInput.value) || 0;
+
+      const changeAmount = customerPayment - totalAmount;
+
+      changeAmountElement.textContent = `Change Amount: $${changeAmount.toFixed(2)}`;
+    }
+
+    async function confirmPayment() {
+  try {
+    const phoneNumber = document.getElementById('phoneNumber').value;
+    const customerName = document.getElementById('customerName').value;
+    const customerAddress = document.getElementById('customerAddress').value;
+    const customerPayment = parseFloat(document.getElementById('customerPayment').value) || 0;
+
+    const response = await fetch('/confirmPayment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        phoneNumber,
+        customerName,
+        customerAddress,
+        customerPayment,
+      }),
+    });
+
+    if (response.ok) {
+      const { confirmationResult } = await response.json();
+
+      // Log confirmation result and invoice details for debugging
+      console.log('Payment confirmed!', confirmationResult);
+      console.log('Invoice Details:', confirmationResult.invoiceDetails);
+
+      // Show the invoice details
+      showInvoiceDetails(confirmationResult.invoiceDetails);
+    } else {
+      console.error('Failed to confirm payment:', response.statusText);
+      // Handle the case where payment confirmation failed
+    }
+  } catch (error) {
+    console.error('Error confirming payment:', error.message);
+    // Handle the case where an error occurred during payment confirmation
+  }
+}
+
+function showInvoiceDetails(invoiceDetails) {
+  console.log('Showing invoice details:', invoiceDetails);
+
+  try {
+    // Get the modal element
+    const modal = document.getElementById('invoiceModal');
+
+    // Check if the HTML element exists
+    if (!modal) {
+      console.error('Error: HTML element with ID "invoiceModal" not found.');
+      return;
+    }
+
+    // Construct the HTML for the invoice details
+    const invoiceDetailsHTML = `
+      <h3>Invoice Details</h3>
+      <p>Customer: ${invoiceDetails.customerName}</p>
+      <p>Phone Number: ${invoiceDetails.phoneNumber}</p>
+      <!-- Add more details as needed -->
+      <button onclick="exportInvoice()">Export Invoice</button>
+    `;
+
+    // Set the HTML content to the modal body
+    modal.querySelector('.modal-body').innerHTML = invoiceDetailsHTML;
+
+    // Show the modal
+    modal.style.display = 'block';
+  } catch (error) {
+    console.error('Error showing invoice details:', error.message);
+  }
+}
+
+
+// Function to close the modal
+function closeInvoiceModal() {
+  const modal = document.getElementById('invoiceModal');
+  modal.style.display = 'none';
+}
+
+  </script>
+</body>
+
+</html>

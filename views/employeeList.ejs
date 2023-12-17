@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee List</title>
+    <!-- Add SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+
+    <!-- Add SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+        }
+
+        div {
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        img {
+            max-width: 80%;
+            height: auto;
+            border-radius: 50%;
+            margin-left: auto;
+            margin-right: 0;
+            order: 2;
+        }
+
+        p {
+            margin: 5px 0;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 5px 2px;
+            width: 70px;
+            height: 60px;
+            transition: background-color 0.3s ease; /* Thêm hiệu ứng chuyển động */
+}
+
+button:hover {
+    background-color: #45a049; /* Màu sắc khác khi hover */
+}
+
+.lock-button {
+    background-color: #d9534f; /* Red color for lock button */
+    transition: background-color 0.3s ease; /* Thêm hiệu ứng chuyển động */
+}
+
+.lock-button:hover {
+    background-color: #c9302c; /* Màu sắc khác khi hover */
+}
+
+        a {
+            color: #333;
+            text-decoration: none;
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Employee List</h1>
+
+        <ul>
+            <% employees.forEach(employee => { %>
+                <li>
+                    <div>
+                        <p><strong><%= employee.fullname %></strong></p>
+                        <p>Username: <%= employee.username %></p>
+                        <% if (employee.isFirstLogin) { %>
+                            <p>Status of first login: Inactive</p>
+                        <% } %>
+                        <% if (employee.isLocked) { %>
+                            <p>Status of locking: Locked</p>
+                        <% } %>
+                    </div>
+
+                    <% if (employee.image) { %>
+                        <div>
+                            <% if (employee.image.startsWith('/uploads/avatar')) { %>
+                                <img src="<%= employee.image %>" alt="User Avatar">
+                            <% } else { %>
+                                <img src="data:image/png;base64, <%= employee.image %>" alt="User Avatar">
+                            <% } %>
+                        </div>
+                    <% } %>
+
+                    <button onclick="viewEmployeeDetails('<%= employee.username %>')">View Details</button>
+                    
+                    <!-- Lock and Unlock buttons -->
+                    <button class="button lock-button" onclick="lockEmployee('<%= employee.username %>')">Lock</button>
+                    <button class="button" onclick="unlockEmployee('<%= employee.username %>')">Unlock</button>
+                    <button class="button" onclick="viewSalesInfo('<%= employee.username %>')">View Sales Info</button>
+
+                </li>
+            <% }); %>
+        </ul>
+
+        <a href="/dashboard">Back to Dashboard</a>
+    </div>
+
+    <script>
+        function viewEmployeeDetails(username) {
+            window.location.href = '/employeeDetails?username=' + username;
+        }
+
+        function lockEmployee(username) {
+            fetch('/lockEmployee', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show a success notification using SweetAlert2
+                    Swal.fire({
+                        icon: '',
+                        title: data.message,
+                        customClass: {
+                            content: 'smaller-alert', // Define a custom class for smaller alert
+                        }
+                    });
+                    // You may want to refresh the employee list or update the UI in some way
+                } else {
+                    // Show an error notification using SweetAlert2
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message,
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error locking account:', error);
+                // Show an error notification using SweetAlert2
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error locking account. Please try again.',
+                });
+            });
+        }
+
+        function unlockEmployee(username) {
+            fetch('/unlockEmployee', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show a success notification using SweetAlert2
+                    Swal.fire({
+                        icon: '',
+                        title: data.message,
+                        customClass: {
+                            content: 'smaller-alert', // Define a custom class for smaller alert
+                        }
+                    });
+                    // You may want to refresh the employee list or update the UI in some way
+                } else {
+                    // Show an error notification using SweetAlert2
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message,
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error unlocking account:', error);
+                // Show an error notification using SweetAlert2
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error unlocking account. Please try again.',
+                });
+            });
+        }
+
+        function viewSalesInfo(username) {
+    // Chuyển hướng đến trang xem thông tin bán hàng (thay thế '/salesInfo' bằng đường dẫn thực tế)
+    window.location.href = '/salesInfo?username=' + username;
+}
+
+    </script>
+</body>
+</html>

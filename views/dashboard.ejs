@@ -1,0 +1,266 @@
+<!-- views/dashboard.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- ... your head content ... -->
+    <style>
+        /* Reset some default styles */
+        body, h1, h2, p, button {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 400px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #userInfo {
+            margin-bottom: 20px;
+        }
+
+        #userInfo p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            margin: 10px 0;
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        form {
+            display: inline-block;
+        }
+
+        /* Style for the modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Style for the modal content */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            border-radius: 8px;
+        }
+
+        /* Style for links */
+        a {
+            color: #3498db;
+            text-decoration: none;
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Style for success message */
+        .success-message {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        /* Style for error message */
+        .error-message {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .user-info {
+    position: absolute;
+    top: 30px;
+    right: 150px;
+    text-align: right;
+}
+
+
+.user-info .username {
+    color: #3498db; /* Change the color to your desired color */
+    font-weight: bold;
+    /* Add any other styling you want for the username */
+}
+.logout-form {
+    position: absolute;
+    top: 10px;
+    right: 50px;
+}
+
+.logout-form button {
+    background-color: #e74c3c; /* Change the color to your desired color */
+    color: #fff;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+         <h1>Dashboard</h1>
+         <div id="userInfo" class="user-info">
+            <!-- Display the username if logged in -->
+            <% if (loggedInUsername) { %>
+                <p>Hi, <span class="username"><%= loggedInUsername %></span></p>
+            <% } %>
+        </div>
+                <!-- Your other dashboard content -->
+
+        
+
+        <!-- Change Password button -->
+        <button onclick="openChangePasswordModal()">Change Password</button>
+
+        <!-- See Profile button -->
+        <button onclick="seeProfile()">See Profile</button>
+        <button onclick="manageCategories()">Manage Product Categories</button>
+        <button onclick="goToTransactionProcessing()">Transaction Processing</button>
+
+        <!-- Change Password Modal -->
+        <div id="changePasswordModal" class="modal">
+            <div class="modal-content">
+                <span onclick="closeChangePasswordModal()" style="float: right; cursor: pointer;">&times;</span>
+                <h2>Change Password</h2>
+                <label for="currentPassword">Current Password:</label>
+                <input type="password" id="currentPassword" name="currentPassword" required>
+
+                <label for="newPassword">New Password:</label>
+                <input type="password" id="newPassword" name="newPassword" required>
+
+                <button onclick="changePassword()">Change Password</button>
+            </div>
+        </div>
+
+         <!-- Add a link to create employee account page if the user has a role of 'admin' -->
+         <% if (loggedInUserRole === 'admin') { %>
+            <a href="/createEmployeeAccount">Create Employee Account</a>
+            <button onclick="goToEmployeeList()">View Employee List</button>
+            <button onclick="viewSalesInfo()">View Sales Information</button>
+
+        <% } %>
+
+<!-- Logout form -->
+<form id="logoutForm" class="logout-form" action="/logout" method="POST">
+    <button type="submit">Logout</button>
+</form>
+    </div>
+
+    <!-- Your other scripts if any -->
+
+    <script>
+        // Function to open the Change Password modal
+        function openChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'block';
+        }
+
+        // Function to close the Change Password modal
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'none';
+        }
+
+        // Function to handle changing the password
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+
+            // You can use fetch or another method to send a request to your server to change the password
+            // Example using fetch:
+            fetch('/changepassword', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ currentPassword, newPassword }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Password changed successfully, you can display a success message or redirect the user
+                    alert('Password changed successfully!');
+                    // Close the modal after successful change
+                    closeChangePasswordModal();
+                } else {
+                    // Display an error message
+                    alert('Failed to change password. Please check your current password.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error.message);
+                alert('An error occurred while changing the password.');
+            });
+        }
+
+        // Function to see the profile
+        function seeProfile() {
+            // Redirect to the profile page (replace '/profile' with the actual route)
+            window.location.href = '/profile';
+        }
+
+        function goToEmployeeList() {
+        // Redirect to the employee list page (replace '/employeeList' with the actual route)
+        window.location.href = '/employeeList';
+    }
+
+    function viewSalesInfo() {
+        // Redirect to the sales information page for employees (replace '/salesInfo' with the actual route)
+        window.location.href = '/salesInfo';
+    }
+
+    function manageCategories() {
+        // Redirect to the category management page (replace '/manageCategories' with the actual route)
+        window.location.href = '/manageCategories';
+    }
+
+    function goToTransactionProcessing() {
+        // Redirect to the Transaction Processing page (replace '/transactionProcessing' with the actual route)
+        window.location.href = '/transactionProcessing';
+    }
+
+    </script>
+</body>
+</html>

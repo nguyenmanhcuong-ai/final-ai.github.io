@@ -1,0 +1,72 @@
+<!-- newLoginLinkSent.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Login Link Sent</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9; /* Màu nền trắng */
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333; /* Màu đen tối */
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #555;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        .success-icon {
+            color: #2ecc71;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="success-icon animate__animated">&#10004;</div>
+        <h1>New Login Link Sent Successfully</h1>
+        <p>Your new login link has been sent successfully. Please check your email.</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            setInterval(function () {
+                const successIcon = document.querySelector('.success-icon');
+                successIcon.classList.add('animate__heartBeat');
+
+                setTimeout(function () {
+                    successIcon.classList.remove('animate__heartBeat');
+                }, 1000); // Xóa lớp sau mỗi giây
+            }, 2000); // Thêm lớp sau mỗi 2 giây
+        });
+    </script>
+</body>
+
+</html>

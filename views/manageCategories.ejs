@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- ... your head content ... -->
+    <title>Product Category Management</title>
+    <!-- Thêm các đường dẫn CSS hoặc thư viện khác nếu cần -->
+    <style>
+        body, h1, h2, p, ul, li, button, a {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', Arial, sans-serif; /* Thay đổi font chữ */
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+
+        .header-container {
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1;
+        }
+
+        .main-container {
+            margin-top: 80px;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-family: 'Pacifico', cursive; /* Thay đổi font cho tiêu đề lớn */
+            text-align: center; /* Thêm thuộc tính để căn giữa nội dung */
+
+        }
+
+        .product-container {
+            max-width: 1400px; /* Đặt chiều rộng tối đa cho container sản phẩm */
+            margin: 0 auto; /* Canh giữa container */
+        }
+
+        ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-gap: 20px;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        li {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        li:hover {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .avatar {
+            max-width: 100%;
+            height: auto;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        li:hover .avatar {
+            transform: translateY(-10px);
+        }
+
+        .qr-code {
+            max-width: 25%; /* Giảm kích thước của ảnh QR */
+            height: auto;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        /* Style for product information */
+        .product-info {
+            font-family: 'Roboto', Arial, sans-serif; /* Thay đổi font cho thông tin sản phẩm */
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 8px; /* Thêm khoảng cách dưới mỗi dòng thông tin */
+        }
+
+        /* Style for priceSale */
+        .price-sale {
+            font-size: 22px;
+            color: #dc0b12;
+            font-weight: bold;
+            margin-bottom: 12px; /* Thêm khoảng cách dưới giá bán */
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px; /* Thêm khoảng cách dưới tên sản phẩm */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Product Category Management</h1>
+        </div>
+        <div class="product-container">
+            <ul>
+                <% products.forEach(product => { %>
+                    <li>
+                        <% if (product.image.includes('/uploads/')) { %>
+                            <!-- Display the uploaded avatar -->
+                            <img src="<%= product.image %>" alt="<%= product.name %>" class="avatar">
+                        <% } else { %>
+                            <!-- Display the uploaded avatar -->
+                            <img src="<%= '/uploads/' + product.image %>" alt="<%= product.name %>" class="avatar">
+                        <% } %>
+
+                        <% if (username === 'admin') { %>
+                        <p class="price-sale">Price: <%= product.priceSale %></p>
+                        <% } %>
+
+                        <h2 class="product-name"><%= product.name %></h2>
+                        <p class="product-info">Type: <%= product.type %></p>
+                        <p class="product-info">Date Created: <%= product.dateCreate %></p>
+                        <p class="product-info">Price Import: <%= product.priceImport %></p>
+                        <p class="product-info">Description: <%= product.description %></p>
+
+                        <% if (product.qrCode.startsWith('/uploads/')) { %>
+                            <!-- Display the product image -->
+                            <img src="<%= product.qrCode %>" alt="<%= product.name %> Image" class="qr-code">
+                        <% } else { %>
+                            <!-- Display the uploaded avatar -->
+                            <img src="<%= '/uploads/' + product.qrCode %>" alt="<%= product.name %> Image" class="qr-code">
+                        <% } %>
+                        
+                        <!-- Thêm các thông tin khác bạn muốn hiển thị -->
+                        
+                        <!-- Debug Information -->
+                        <% if (username === 'admin') { %>
+                        <!-- Add Edit button -->
+                        <button type="button" class="btn btn-secondary" onclick="openEditProduct('<%= product.id %>')">Edit</button>
+                        <!-- Add Delete button -->
+                        <button type="button" class="btn btn-danger" onclick="confirmDeleteProduct('<%= product.id %>')">Delete</button>
+                        <% } %>
+
+                    </li>
+                <% }); %>
+            </ul>
+        </div>
+        <% if (username === 'admin') { %>
+        <!-- Add Product Button -->
+        <button type="button" class="btn btn-primary" id="showAddProductModal">
+            Add Product
+        </button>
+        <% } %>
+
+        <a href="/dashboard">Back to Dashboard</a>
+    </div>
+
+    </form>
+    </div>
+
+    <script>
+
+document.getElementById('showAddProductModal').addEventListener('click', function() {
+    console.log('Button clicked'); // Kiểm tra xem đoạn mã này có chạy không
+    window.location.href = '/addProduct';
+});
+
+        function openEditProduct(productId) {
+    // Log the product ID to the console
+    console.log('Product ID:', productId);
+
+    // Redirect to the "/editProduct" page with the product ID
+    window.location.href = `/editProduct/${productId}`;
+}
+
+        // Function to confirm product deletion
+        function confirmDeleteProduct(productId) {
+            // Log the product ID to the console
+            console.log('Product ID:', productId);
+
+            // Display a confirmation dialog
+            const confirmDelete = confirm('Do you want to delete this product?');
+
+            if (confirmDelete) {
+                // Check the isBought status before deleting
+                fetch(`/checkIsBought/${productId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.isBought) {
+                            alert('This product is not deleted because it is bought.');
+                        } else {
+                            // If not bought, proceed with deletion
+                            deleteProduct(productId);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking isBought status:', error);
+                        // Handle error if needed
+                    });
+            }
+        }
+
+                // Function to delete the product
+                function deleteProduct(productId) {
+            // Make an asynchronous request to delete the product
+            fetch(`/deleteProduct/${productId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Refresh the page or update the product list as needed
+                        window.location.reload();
+                    } else {
+                        console.error('Failed to delete product:', data.error);
+                        // Handle the case where the delete is not successful
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting product:', error);
+                    // Handle other errors if needed
+                });
+        }
+
+        // ... your existing script ...
+    </script>
+
+    <!-- ... your existing script ... -->
+</body>
+</html>

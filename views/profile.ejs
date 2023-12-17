@@ -1,0 +1,276 @@
+<!-- views/profile.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            font-size: 2em; /* Font size adjusted to your preference */
+        }
+
+        #userInfo {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .avatar-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 50%;
+            width: 250px; /* Set avatar size as desired */
+            height: 250px;
+            margin: 0 auto; /* Center the avatar */
+        }
+
+        .avatar {
+            max-width: 100%;
+            height: auto;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .avatar-container:hover .avatar-overlay {
+            opacity: 1;
+        }
+
+        .overlay-content {
+            color: #fff;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        form {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .avatar-container {
+            position: relative;
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            background: rgba(247, 246, 246, 0.376);
+            color: #000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .avatar-container:hover .avatar-overlay {
+            opacity: 1;
+        }
+
+        .overlay-content {
+            cursor: pointer;
+            margin-top: 5px; /* Spacing between options */
+            background-color: #4caf50; /* Background color of options */
+            color: #fff; /* Text color of options */
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        /* Style for the full avatar modal */
+        #fullAvatarModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #fullAvatarContent {
+            width: 80%;
+            height: 80%;
+            max-width: 100%;
+            max-height: 100%;
+            overflow: hidden;
+        }
+
+        #fullAvatarImage {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Profile</h1>
+        <div id="userInfo">
+            <!-- Display the user's full name -->
+            <% if (userProfileData && userProfileData.fullName) { %>
+                <p>Full Name: <%= userProfileData.fullName %></p>
+
+                <!-- Display the avatar -->
+                <% if (userProfileData.imagePath) { %>
+                    <div class="avatar-container" onclick="toggleAvatarOverlay()">
+                        <% if (userProfileData.imagePath.startsWith('/uploads/avatar')) { %>
+                            <!-- Display the uploaded avatar -->
+                            <img src="<%= userProfileData.imagePath %>" alt="User Avatar" class="avatar">
+                        <% } else { %>
+                            <!-- Display the Base64-encoded avatar -->
+                            <img src="data:image/png;base64, <%= userProfileData.imagePath %>" alt="User Avatar"
+                                class="avatar">
+                        <% } %>
+                        <div class="avatar-overlay" id="avatarOverlay">
+                            <div class="overlay-content" onclick="seeAvatar()">See Avatar</div>
+                            <div class="overlay-content" onclick="openChangeAvatarModal()">Change Avatar</div>
+                        </div>
+                    </div>
+                <% } %>
+            <% } %>
+        </div>
+
+        <!-- Hộp thoại modal -->
+        <div id="changeAvatarModal" class="modal">
+            <div class="modal-content">
+                <!-- Form đổi avatar -->
+                <form id="avatarForm" action="/changeavatar" method="POST" enctype="multipart/form-data">
+                    <!-- Nút đóng modal -->
+                    <span class="close-modal" onclick="closeChangeAvatarModal()">&times;</span>
+                    <input type="file" name="avatar" accept="image/*">
+                    <button type="button" onclick="submitAvatarForm()">Change Avatar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Full Avatar Modal -->
+        <div id="fullAvatarModal" class="modal">
+            <div id="fullAvatarContent" class="modal-content">
+                <!-- Nút đóng modal -->
+                <span class="close-modal" onclick="closeFullAvatarModal()">&times;</span>
+                <!-- Hiển thị ảnh đầy đủ -->
+                <img id="fullAvatarImage" src="" alt="Full Avatar" style="width: 100%;">
+            </div>
+        </div>
+
+        <!-- Your other scripts if any -->
+        <script>
+            function toggleAvatarOverlay() {
+                const avatarOverlay = document.getElementById('avatarOverlay');
+                avatarOverlay.style.opacity = (avatarOverlay.style.opacity === '1') ? '0' : '1';
+            }
+
+            function seeAvatar() {
+                // Lấy đường dẫn ảnh từ avatar hiện tại
+                const currentAvatarSrc = document.querySelector('.avatar').getAttribute('src');
+                // Hiển thị modal với ảnh đầy đủ
+                document.getElementById('fullAvatarImage').src = currentAvatarSrc;
+                document.getElementById('fullAvatarModal').style.display = 'flex';
+            }
+
+            function closeFullAvatarModal() {
+                document.getElementById('fullAvatarModal').style.display = 'none';
+            }
+
+            function openChangeAvatarModal() {
+                // Hiển thị modal khi mở Change Avatar Modal
+                document.getElementById('changeAvatarModal').style.display = 'flex';
+            }
+
+            function closeChangeAvatarModal() {
+                // Ẩn modal khi đóng Change Avatar Modal
+                document.getElementById('changeAvatarModal').style.display = 'none';
+            }
+
+            function submitAvatarForm() {
+                avatarForm.submit();
+            }
+        </script>
+</body>
+
+</html>

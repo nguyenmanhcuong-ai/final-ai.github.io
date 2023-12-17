@@ -1,0 +1,61 @@
+<!-- views/login.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/styles.css"> <!-- Include the CSS file -->
+
+    <!-- Include SweetAlert library -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+    <!-- Your custom JavaScript code -->
+    <script>
+        // Check if there is a message and display it using SweetAlert
+        document.addEventListener('DOMContentLoaded', function () {
+            const message = '<%= typeof message !== "undefined" ? message : "" %>';
+            console.log('Message:', message); // Thêm dòng log này để xem giá trị của message
+
+            // Check if the message exists and contains the word "wrong"
+            if (message && message.toLowerCase().includes('wrong')) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Username or password is wrong',
+                    customClass: {
+                        icon: 'custom-error-icon' // Add a custom class for the icon
+                    },
+                    showConfirmButton: true
+                });
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Login</h1>
+
+        <form action="/login" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <!-- Add a link or button to trigger the password change -->
+
+        <!-- Your other HTML content -->
+
+    </div>
+    
+</body>
+
+</html>
