@@ -29,6 +29,41 @@ app.use(session({ secret: 'your-secret-key', resave: true, saveUninitialized: tr
 app.use(flash());
 const storage = multer.memoryStorage(); // You can choose a different storage strategy
 const upload = multer({ storage: storage });
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+
+// Set up Passport.js serialization and deserialization
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  // Replace User.findById with your actual user lookup logic
+  User.findById(id, (err, user) => {
+    done(err, user);
+  });
+});
+
+// Set up the Local Strategy for username/password authentication
+passport.use(new LocalStrategy(
+  (username, password, done) => {
+    // Replace this with your actual authentication logic
+    User.findOne({ username: username }, (err, user) => {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.verifyPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+  }
+));
+
+// Initialize Passport.js middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Connect to Supabase
 accountService.initializeAdminUser();
